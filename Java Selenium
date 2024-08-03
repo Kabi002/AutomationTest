@@ -1,1 +1,130 @@
+package org.automation;
+
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class AutomationTest {
+
+	public static void main(String[] args) throws InterruptedException {
+
+		// Set up WebDriver
+		WebDriverManager.chromedriver().setup();
+		WebDriver driver = new ChromeDriver();
+
+		try {
+			// Initialize WebDriverWait
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+			// Navigate to FitPeo Homepage
+			driver.get("https://www.fitpeo.com/");
+			driver.manage().window().maximize();
+
+			// Navigate to the Revenue Calculator Page
+			WebElement revenueCalculatorLink = wait
+					.until(ExpectedConditions.elementToBeClickable(By.linkText("Revenue Calculator")));
+			revenueCalculatorLink.click();
+
+			// Locate the slider input element
+			WebElement slider = wait
+					.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@type='range']")));
+			System.out.println("Found slider element.");
+
+			// Move the slider to the target value using JavaScript
+			((JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1];"
+					+ "var event = new Event('input', { bubbles: true });" + "arguments[0].dispatchEvent(event);",
+					slider, 820);
+			System.out.println("Set slider to 820 using JavaScript.");
+
+			// Wait for the slider to update
+			wait.until(ExpectedConditions.attributeToBe(slider, "value", "820"));
+			System.out.println("Slider value updated to 820.");
+
+			// Validate Slider Value
+			int updatedSliderValue = Integer.parseInt(slider.getAttribute("value"));
+			System.out.println("Updated Slider Value: " + updatedSliderValue);
+
+			if (updatedSliderValue == 820) {
+				System.out.println("Slider value updated correctly to 820.");
+			} else {
+				System.out.println("Slider value did not update correctly. Current value: " + updatedSliderValue);
+			}
+
+			// Locate the text field and update its value
+			WebElement textField = wait
+					.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@type='number']")));
+			((JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1];"
+					+ "var event = new Event('input', { bubbles: true });" + "arguments[0].dispatchEvent(event);",
+					textField, "560");
+			System.out.println("Set text field value to 560 using JavaScript.");
+
+			// Wait for the text field to update
+			wait.until(ExpectedConditions.attributeToBe(textField, "value", "560"));
+			System.out.println("Text field value updated to 560.");
+
+			// Validate Text Field Value
+			String updatedTextFieldValue = textField.getAttribute("value");
+			System.out.println("Updated Text Field Value: " + updatedTextFieldValue);
+
+			if ("560".equals(updatedTextFieldValue)) {
+				System.out.println("Text field updated correctly to 560.");
+			} else {
+				System.out.println("Text field did not update correctly. Current value: " + updatedTextFieldValue);
+			}
+
+			// Validate Slider Value after text field change
+			WebElement updatedSliderAfterTextField = driver.findElement(By.xpath("//input[@type='range']"));
+			int updatedSliderValueAfterTextField = Integer.parseInt(updatedSliderAfterTextField.getAttribute("value"));
+			System.out.println("Updated Slider Value After Text Field Change: " + updatedSliderValueAfterTextField);
+
+			if (updatedSliderValueAfterTextField == 560) {
+				System.out.println("Slider value updated correctly after text field change to 560.");
+			} else {
+				System.out.println("Slider value did not update correctly after text field change. Current value: "
+						+ updatedSliderValueAfterTextField);
+			}
+
+			// Select CPT Codes
+			WebElement cpt99091Checkbox = wait
+					.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[contains(text(), '57')]")));
+			WebElement cpt99453Checkbox = wait
+					.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[contains(text(), '19.19')]")));
+			WebElement cpt99454Checkbox = wait
+					.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[contains(text(), '63')]")));
+			WebElement cpt99474Checkbox = wait
+					.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[contains(text(), '15')]")));
+			cpt99091Checkbox.click();
+			cpt99453Checkbox.click();
+			cpt99454Checkbox.click();
+			cpt99474Checkbox.click();
+			System.out.println("Selected CPT codes.");
+
+			// Allow time for checkboxes to update
+			Thread.sleep(3000); // Increase wait time if necessary
+
+			// Validate Total Recurring Reimbursement
+			WebElement reimbursementHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//p[@class='MuiTypography-root MuiTypography-body1 inter css-12bch19']")));
+			String headerText = reimbursementHeader.getText();
+			System.out.println("Reimbursement Header Text: " + headerText);
+
+			if (headerText.contains("$110700")) {
+				System.out.println("Total Recurring Reimbursement is correct.");
+			} else {
+				System.out.println("Total Recurring Reimbursement is incorrect.");
+			}
+
+		} finally {
+			// Clean up
+			driver.quit();
+			System.out.println("Excuted and closed");
+		}
+	}
+}
 
